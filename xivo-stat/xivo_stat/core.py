@@ -67,9 +67,9 @@ def get_start_end_time():
     return get_start_time(), get_end_time()
 
 
-def _clean_up_after_error():
+def _clean_up_after_error(dao_sess):
     logger.info('Inconsistent cache, cleaning up...')
-    clean_db()
+    dao_sess.rollback()
     sys.exit(1)
 
 
@@ -100,7 +100,7 @@ def update_db():
             queue.fill_calls(dao_sess, period_start, period_end)
             queue.insert_periodic_stat(dao_sess, period_start, period_end)
     except (IntegrityError, KeyboardInterrupt):
-        _clean_up_after_error()
+        _clean_up_after_error(dao_sess)
 
 
 def clean_db():
